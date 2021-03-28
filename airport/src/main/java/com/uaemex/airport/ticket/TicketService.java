@@ -6,12 +6,20 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @AllArgsConstructor
 public class TicketService {
     private final TicketRepository ticketRepository;
+
+    public Ticket getTicket(UUID ticketId){
+        Optional<Ticket> ticketOptional = ticketRepository.findById(ticketId);
+        if (ticketOptional.isEmpty())
+            throw new IllegalStateException("Ticket with id " + ticketId + "does not exist");
+        return ticketOptional.get();
+    }
 
     public List<Ticket> getTickets(){
         return ticketRepository.findAll();

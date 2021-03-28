@@ -14,6 +14,13 @@ import java.util.UUID;
 public class BoardingRoomService {
     private final BoardingRoomRepository boardingRoomRepository;
 
+    public BoardingRoom getBoardingRoom(UUID boardingRoomId){
+        Optional<BoardingRoom> boardingRoomOptional = boardingRoomRepository.findById(boardingRoomId);
+        if (boardingRoomOptional.isEmpty())
+            throw new IllegalStateException("Boarding room with id " + boardingRoomId + "does not exist");
+        return boardingRoomOptional.get();
+    }
+
     public List<BoardingRoom> getBoardingRooms(){
         return boardingRoomRepository.findAll();
     }
@@ -26,11 +33,11 @@ public class BoardingRoomService {
 
     //TODO Modificar FK Terminal
     @Transactional
-    public void updateBoardingRoom(UUID boardingRoomId, int capacity, String name){
+    public void updateBoardingRoom(UUID boardingRoomId, Integer capacity, String name){
         BoardingRoom boardingRoom = boardingRoomRepository.findById(boardingRoomId)
                 .orElseThrow(() -> new IllegalStateException("Boarding room with id " + boardingRoomId + " does not exist"));
 
-        if(capacity > 0 && !Objects.equals(boardingRoom.getCapacity(), capacity)) boardingRoom.setCapacity(capacity);
+        if(capacity!= null && capacity > 0 && !Objects.equals(boardingRoom.getCapacity(), capacity)) boardingRoom.setCapacity(capacity);
         if(name != null && name.length() > 0 && !Objects.equals(boardingRoom.getName(), name))
             boardingRoom.setName(name);
 

@@ -1,6 +1,7 @@
 package com.uaemex.airport.user;
 
 import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -13,6 +14,14 @@ import java.util.UUID;
 @AllArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    public User getUser(UUID userId) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isEmpty())
+            throw new IllegalStateException("User with id " + userId + "does not exist");
+        return optionalUser.get();
+    }
 
     public List<User> getUsers() {
         return userRepository.findAll();
@@ -22,9 +31,12 @@ public class UserService {
         Optional<User> userOptional = userRepository.findUserByEmail(user.getEmail());
 
         if (userOptional.isPresent()) throw new IllegalStateException("Email already in use");
+        //TODO mejor implementacion
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
     }
 
+    //TODO Modificar password
     @Transactional
     public void updateUser(UUID userId, String email, String name, String last_name) {
         User user = userRepository.findById(userId)

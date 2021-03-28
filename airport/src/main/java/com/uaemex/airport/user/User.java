@@ -1,9 +1,9 @@
 package com.uaemex.airport.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.uaemex.airport.plane.Plane;
 import com.uaemex.airport.ticket.Ticket;
 import lombok.Data;
-import org.hibernate.annotations.ColumnTransformer;
 
 import javax.persistence.*;
 import java.util.List;
@@ -25,7 +25,8 @@ public class User {
     private UUID id;
     @Column(nullable = false, length = 45)
     private String email;
-    @Column(nullable = false, length = 45)
+    @Column(nullable = false)
+    @JsonIgnore
     private String password;
     @Column(nullable = false, length = 45)
     private String name;

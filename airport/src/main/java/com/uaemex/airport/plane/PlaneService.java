@@ -6,12 +6,20 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @AllArgsConstructor
 public class PlaneService {
     private final PlaneRepository planeRepository;
+
+    public Plane getPlane(UUID planeId) {
+        Optional<Plane> planeOptional = planeRepository.findById(planeId);
+        if (planeOptional.isEmpty())
+            throw new IllegalStateException("Plane with id " + planeId + "does not exist");
+        return planeOptional.get();
+    }
 
     public List<Plane> getPlanes(){
         return planeRepository.findAll();
@@ -22,12 +30,13 @@ public class PlaneService {
         planeRepository.save(plane);
     }
 
+    //TODO modificar FK's (routes, user)
     @Transactional
-    public void updatePlane(UUID planeId, int capacity, String model){
+    public void updatePlane(UUID planeId, Integer capacity, String model){
         Plane plane = planeRepository.findById(planeId)
                 .orElseThrow(() -> new IllegalStateException("Plane with id " + planeId + " does not exist"));
 
-        if (capacity > 0 && !Objects.equals(plane.getCapacity(), capacity))
+        if (capacity != null && capacity > 0 && !Objects.equals(plane.getCapacity(), capacity))
             plane.setCapacity(capacity);
 
         if (model != null && model.length() > 0 && !Objects.equals(plane.getModel(), model))

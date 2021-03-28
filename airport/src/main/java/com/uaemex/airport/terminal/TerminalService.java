@@ -12,6 +12,13 @@ import java.util.UUID;
 public class TerminalService {
     private final TerminalRepository terminalRepository;
 
+    public Terminal getTerminal(UUID terminalId){
+        Optional<Terminal> optionalTerminal = terminalRepository.findById(terminalId);
+        if (optionalTerminal.isEmpty())
+            throw new IllegalStateException("Terminal with id " + terminalId + "does not exist");
+        return optionalTerminal.get();
+    }
+
     public List<Terminal> getTerminals(){
         return terminalRepository.findAll();
     }

@@ -6,15 +6,19 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @AllArgsConstructor
 @Service
 public class RouteService {
     private final RouteRepository routeRepository;
+
+    public Route getRoute(UUID routeId){
+        Optional<Route> routeOptional = routeRepository.findById(routeId);
+        if (routeOptional.isEmpty())
+            throw new IllegalStateException("Route with id " + routeId + "does not exist");
+        return routeOptional.get();
+    }
 
     public List<Route> getRoutes(){
         return routeRepository.findAll();
@@ -24,6 +28,7 @@ public class RouteService {
         routeRepository.save(route);
     }
 
+    //TODO modificar FK (tickets, boardin_room, plane)
     @Transactional
     public void updateRoute(UUID routeId, String from, String to, Timestamp etd, Timestamp eta, Float cost){
         //TODO modificar FK's (airline, terminal, plane)
