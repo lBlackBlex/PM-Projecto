@@ -1,10 +1,12 @@
 package com.uaemex.airport.airline;
 
+import com.fasterxml.jackson.annotation.*;
 import com.uaemex.airport.route.Route;
 import lombok.Data;
 
 import javax.persistence.*;
-import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -22,7 +24,11 @@ public class Airline {
     private UUID id;
     @Column(nullable = false, length = 45)
     private String name;
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "airline_id")
-    private List<Route> routes;
+    @JsonIgnoreProperties("airlines")
+    @ManyToMany(mappedBy = "airlines")
+    private Set<Route> routes;
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name);
+    }
 }

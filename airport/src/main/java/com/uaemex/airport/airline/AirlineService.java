@@ -1,24 +1,22 @@
 package com.uaemex.airport.airline;
 
+import com.uaemex.airport.route.Route;
+import com.uaemex.airport.route.RouteRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
 public class AirlineService {
     private final AirlineRepository airlineRepository;
+    private final RouteRepository routeRepository;
 
     public Airline getAirline(UUID airlineId) {
-        Optional<Airline> airlineOptional = airlineRepository.findById(airlineId);
-        if (airlineOptional.isEmpty())
-            throw new IllegalStateException("Airline with id " + airlineId + "does not exist");
-        return airlineOptional.get();
+        return airlineRepository.findById(airlineId)
+                .orElseThrow(()-> new IllegalStateException("Airline with id " + airlineId + " does not exist"));
     }
 
     public List<Airline> getAirlines() {
@@ -32,7 +30,6 @@ public class AirlineService {
         airlineRepository.save(airline);
     }
 
-    //TODO modificar FK ruta
     @Transactional
     public void updateAirline(UUID airlineId, String name) {
         Airline airline = airlineRepository.findById(airlineId)
@@ -43,8 +40,11 @@ public class AirlineService {
 
 
     public void deleteAirline(UUID airlineId) {
-        boolean exist = airlineRepository.existsById(airlineId);
-        if (!exist) throw new IllegalStateException("User with id " + airlineId + " does not exist");
+        Airline airline = airlineRepository.findById(airlineId)
+                .orElseThrow(() -> new IllegalStateException("Airline with id " + airlineId + " does not exist"));
+
+        List<Route> routes = routeRepository.findAllByAirlinesContains(airline);
+        routes.forEach(route -> route.getAirlines().remove(airline));
         airlineRepository.deleteById(airlineId);
     }
 }

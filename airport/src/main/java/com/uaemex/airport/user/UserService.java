@@ -1,6 +1,11 @@
 package com.uaemex.airport.user;
 
+import com.uaemex.airport.airline.Airline;
+import com.uaemex.airport.plane.Plane;
+import com.uaemex.airport.plane.PlaneRepository;
+import com.uaemex.airport.route.Route;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -14,12 +19,22 @@ import java.util.UUID;
 @AllArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final PlaneRepository planeRepository;
+
+    @Autowired
     private final PasswordEncoder passwordEncoder;
 
     public User getUser(UUID userId) {
         Optional<User> optionalUser = userRepository.findById(userId);
         if (optionalUser.isEmpty())
             throw new IllegalStateException("User with id " + userId + "does not exist");
+        return optionalUser.get();
+    }
+
+    public User getUserByEmail(String email) {
+        Optional<User> optionalUser = userRepository.findUserByEmail(email);
+        if (optionalUser.isEmpty())
+            throw new IllegalStateException("User with email " + email + "does not exist");
         return optionalUser.get();
     }
 
@@ -52,6 +67,29 @@ public class UserService {
 
         if (last_name != null && last_name.length() > 0 && !Objects.equals(user.getLast_name(), last_name))
             user.setLast_name(last_name);
+    }
+
+    @Transactional
+    public void addPilotPlane(UUID userId, UUID planeId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalStateException("User with id " + userId + " does not exist"));
+        Plane plane = planeRepository.findById(planeId)
+                .orElseThrow(() -> new IllegalStateException("Plane with id " + planeId + " does not exist"));
+
+        if(!user.getRole().equals("PILOT")) throw new IllegalStateException("Only assign planes to pilots");
+
+        user.getPlanes().add(plane);
+        plane.getPilots().add(user);
+    }
+
+    @Transactional
+    public void removePilotPlane(UUID userId, UUID planeId){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalStateException("User with id " + userId + " does not exist"));
+        Plane plane = planeRepository.findById(planeId)
+                .orElseThrow(() -> new IllegalStateException("Plane with id " + planeId + "does not exist"));
+
+        user.getPlanes().remove(plane);
     }
 
     public void deleteUser(UUID userId) {

@@ -1,12 +1,13 @@
 package com.uaemex.airport.terminal;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.uaemex.airport.boardingRoom.BoardingRoom;
 import com.uaemex.airport.route.Route;
 import lombok.Data;
 
 import javax.persistence.*;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Data
 @Entity
@@ -18,10 +19,8 @@ public class Terminal {
     private UUID id;
     @Column(nullable = false, columnDefinition = "tinyint")
     private int type;
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("terminal")
+    @OneToMany
     @JoinColumn(name = "terminal_id")
-    private List<BoardingRoom> boardingRooms;
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "airline_id")
-    private List<Route> routes;
+    private List<BoardingRoom> boardingRooms = new ArrayList<>();
 }

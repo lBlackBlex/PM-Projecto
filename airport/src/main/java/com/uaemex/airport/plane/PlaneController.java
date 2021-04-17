@@ -32,13 +32,30 @@ public class PlaneController {
         planeService.addNewPlane(plane);
     }
 
+    @PostMapping(path = "{planeId}")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    public void addPlaneRoute(
+            @PathVariable("planeId") UUID planeId,
+            @RequestParam UUID routeId){
+        planeService.addPlaneRoute(planeId, routeId);
+    }
+
     @PutMapping(path = "{planeId}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     public void updatePlane(
             @PathVariable("planeId") UUID planeId,
             @RequestParam(required = false) Integer capacity,
-            @RequestParam(required = false) String model){
-        planeService.updatePlane(planeId, capacity, model);
+            @RequestParam(required = false) String model,
+            @RequestParam(required = false) String aircraft_code){
+        planeService.updatePlane(planeId, capacity, model, aircraft_code);
+    }
+
+    @DeleteMapping(path = "{planeId}/{routeId}")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    public void removePlaneRoute(
+            @PathVariable("planeId") UUID planeId,
+            @PathVariable("routeId") UUID routeId){
+        planeService.removePlaneRoute(planeId, routeId);
     }
 
     @DeleteMapping(path = "{planeId}")

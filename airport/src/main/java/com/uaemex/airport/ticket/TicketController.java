@@ -27,8 +27,16 @@ public class TicketController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_EMPLOYEE', 'ROLE_USER', 'ROLE_PILOT')")
-    public void registerNewTicket(@RequestBody Ticket ticket){
-        ticketService.addNewTicket(ticket);
+    public Ticket registerNewTicket(@RequestBody Ticket ticket){
+        return ticketService.addNewTicket(ticket);
+    }
+
+    @PostMapping(path = "{ticketId}")
+    public void addTicketUser(
+            @PathVariable("ticketId") UUID ticketId,
+            @RequestParam UUID routeId,
+            @RequestParam UUID userId){
+        ticketService.addTicketUser(ticketId, routeId, userId);
     }
 
     @PutMapping(path = "{ticketId}")

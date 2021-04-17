@@ -1,5 +1,9 @@
 package com.uaemex.airport.ticket;
 
+import com.uaemex.airport.route.Route;
+import com.uaemex.airport.route.RouteRepository;
+import com.uaemex.airport.user.User;
+import com.uaemex.airport.user.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +17,8 @@ import java.util.UUID;
 @AllArgsConstructor
 public class TicketService {
     private final TicketRepository ticketRepository;
+    private final UserRepository userRepository;
+    private final RouteRepository routeRepository;
 
     public Ticket getTicket(UUID ticketId){
         Optional<Ticket> ticketOptional = ticketRepository.findById(ticketId);
@@ -25,9 +31,10 @@ public class TicketService {
         return ticketRepository.findAll();
     }
 
-    public void addNewTicket(Ticket ticket){
+    public Ticket addNewTicket(Ticket ticket){
         //TODO Logica para boletos
         ticketRepository.save(ticket);
+        return ticket;
     }
 
     //TODO Modificar FK's (ruta, usuario)
@@ -40,6 +47,20 @@ public class TicketService {
         if (!ticket.isResale()) ticket.setResale(resale);
         if (seat != null && seat.length() > 0 && !Objects.equals(ticket.getSeat(), seat))
             ticket.setSeat(seat);
+    }
+
+    @Transactional
+    public void addTicketUser(UUID ticketId, UUID routeId, UUID userId) {
+        Ticket ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new IllegalStateException("Ticket with id " + ticketId + " does not exist"));
+        Route route = routeRepository.findById(routeId)
+                .orElseThrow(() -> new IllegalStateException("Route with id " + routeId + "does not exist"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalStateException("User with id " + userId + " does not exist"));
+
+        ticket.setRoute(route);
+        user.getTickets().add(ticket);
+        route.getTickets().add(ticket);
     }
 
     public void deleteTicket(UUID ticketId){

@@ -32,6 +32,22 @@ public class TerminalController {
         terminalService.addNewTerminal(terminal);
     }
 
+    @PostMapping(path = "{terminalId}")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    public void addTerminalBoardingRoom(
+            @PathVariable("terminalId") UUID terminalId,
+            @RequestParam UUID boardingRoomId){
+        terminalService.addTerminalBoardingRoom(terminalId, boardingRoomId);
+    }
+
+    @DeleteMapping(path = "{terminalId}/{boarding_roomId}")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    public void removeTerminalBoardingRoom(
+            @PathVariable("terminalId") UUID terminalId,
+            @PathVariable("boarding_roomId") UUID boardingRoomId){
+        terminalService.removeTerminalBoardingRoom(terminalId, boardingRoomId);
+    }
+
     @DeleteMapping(path = "{terminalId}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     public void deleteTerminal(

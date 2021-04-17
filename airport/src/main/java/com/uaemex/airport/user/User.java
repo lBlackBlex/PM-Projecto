@@ -1,14 +1,12 @@
 package com.uaemex.airport.user;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.uaemex.airport.plane.Plane;
 import com.uaemex.airport.ticket.Ticket;
 import lombok.Data;
 
 import javax.persistence.*;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Data
 @Entity
@@ -26,7 +24,6 @@ public class User {
     @Column(nullable = false, length = 45)
     private String email;
     @Column(nullable = false)
-    @JsonIgnore
     private String password;
     @Column(nullable = false, length = 45)
     private String name;
@@ -34,18 +31,20 @@ public class User {
     private String last_name;
     @Column(nullable = false, columnDefinition = "varchar(10) default 'USER' ")
     private String role = "USER";
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany
     @JoinColumn(name = "user_id")
     private List<Ticket> tickets;
-    @ManyToMany(cascade = {
-            CascadeType.PERSIST,
-            CascadeType.MERGE
-    })
+    @JsonIgnoreProperties("pilots")
+    @ManyToMany
     @JoinTable(
             name = "plane_pilot",
             joinColumns = {@JoinColumn(name = "user_id")},
             inverseJoinColumns = {@JoinColumn(name = "plane_id")}
     )
-    private Set<Plane> planes;
+    private Set<Plane> planes = new HashSet<>();
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, email, password, name, last_name, role, tickets);
+    }
 }

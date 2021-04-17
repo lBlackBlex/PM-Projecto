@@ -1,19 +1,17 @@
 package com.uaemex.airport.route;
 
+import com.fasterxml.jackson.annotation.*;
+import com.uaemex.airport.airline.Airline;
 import com.uaemex.airport.boardingRoom.BoardingRoom;
 import com.uaemex.airport.plane.Plane;
 import com.uaemex.airport.ticket.Ticket;
 import lombok.Data;
 
 import javax.persistence.*;
-import java.sql.Time;
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.Duration;
-import java.time.Period;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Data
 @Entity
@@ -23,6 +21,8 @@ public class Route {
     @GeneratedValue
     @Column(updatable = false, columnDefinition = "binary(16)")
     private UUID id;
+    @Column(nullable = false, updatable = false, name = "date_of_flight")
+    private Date date;
     @Column(nullable = false, length = 45, name = "place_of_departure")
     private String from;
     @Column(nullable = false, length = 45, name = "place_of_arrival")
@@ -35,18 +35,31 @@ public class Route {
     private Timestamp eta;
     @Column(nullable = false)
     private float cost;
+    @JsonIgnoreProperties("route")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "route_id")
     private List<Ticket> tickets;
-    @ManyToMany(mappedBy = "routes")
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "routes")
     private Set<BoardingRoom> boardingRooms;
-    @ManyToOne()
+    @JsonIgnoreProperties("routes")
+    @ManyToMany
+    @JoinTable(
+            name = "airline_route",
+            joinColumns = @JoinColumn(name = "route_id"),
+            inverseJoinColumns = @JoinColumn(name = "airline_id")
+    )
+    private Set<Airline> airlines = new HashSet<>();
+    @ManyToOne
     @JoinColumn(name = "plane_id")
     private Plane plane;
 
-    /*public Timestamp getFlight_time() {
+    public Timestamp getFlight_time() {
         Duration seconds = Duration.between(this.etd.toLocalDateTime(), this.eta.toLocalDateTime());
         Timestamp timestamp = new Timestamp(seconds.toMillis());
         return timestamp;
-    }*/
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, date, from, to, flight_time, etd, eta, cost, tickets, boardingRooms);
+    }
 }

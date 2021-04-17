@@ -10,7 +10,12 @@ import java.util.UUID;
 
 @Data
 @Entity
-@Table(name = "boarding_room")
+@Table(
+        name = "boarding_room",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "boarding_room_name_unique", columnNames = "name")
+        }
+)
 public class BoardingRoom {
     @Id
     @GeneratedValue
@@ -20,13 +25,10 @@ public class BoardingRoom {
     private int capacity;
     @Column(nullable = false, length = 45)
     private String name;
-    @ManyToOne()
+    @ManyToOne
     @JoinColumn(name = "terminal_id")
     private Terminal terminal;
-    @ManyToMany(cascade = {
-            CascadeType.PERSIST,
-            CascadeType.MERGE
-    })
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "boarding_room_route",
             joinColumns = {@JoinColumn(name = "boarding_room_id")},

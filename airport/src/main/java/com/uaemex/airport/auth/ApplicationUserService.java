@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -17,7 +16,6 @@ import static com.uaemex.airport.security.ApplicationUserRole.*;
 @Service
 public class ApplicationUserService implements UserDetailsService {
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -27,7 +25,7 @@ public class ApplicationUserService implements UserDetailsService {
         if (user.get().getRole().equals("ADMIN")){
             return new ApplicationUser(
                     ADMIN.getGrantedAuthorities(),
-                    passwordEncoder.encode(user.get().getPassword()),
+                    user.get().getPassword(),
                     user.get().getEmail(),
                     true,
                     true,
@@ -37,7 +35,7 @@ public class ApplicationUserService implements UserDetailsService {
         if (user.get().getRole().equals("EMPLOYEE")){
             return new ApplicationUser(
                     EMPLOYEE.getGrantedAuthorities(),
-                    passwordEncoder.encode(user.get().getPassword()),
+                    user.get().getPassword(),
                     user.get().getEmail(),
                     true,
                     true,
@@ -46,7 +44,7 @@ public class ApplicationUserService implements UserDetailsService {
         }if (user.get().getRole().equals("PILOT")){
             return new ApplicationUser(
                     PILOT.getGrantedAuthorities(),
-                    passwordEncoder.encode(user.get().getPassword()),
+                    user.get().getPassword(),
                     user.get().getEmail(),
                     true,
                     true,
@@ -55,7 +53,7 @@ public class ApplicationUserService implements UserDetailsService {
         }        if (user.get().getRole().equals("USER")){
             return new ApplicationUser(
                     USER.getGrantedAuthorities(),
-                    passwordEncoder.encode(user.get().getPassword()),
+                    user.get().getPassword(),
                     user.get().getEmail(),
                     true,
                     true,
